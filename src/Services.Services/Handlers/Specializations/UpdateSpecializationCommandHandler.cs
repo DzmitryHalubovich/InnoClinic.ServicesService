@@ -1,0 +1,36 @@
+﻿using MediatR;
+using OneOf.Types;
+using OneOf;
+using Services.Services.Abstractions.Commands.Specializations;
+using AutoMapper;
+using Services.Domain.Interfaces;
+
+namespace Services.Services.Handlers.Specializations;
+
+public class UpdateSpecializationCommandHandler : IRequestHandler<UpdateSpecializationCommand, OneOf<Success, NotFound>>
+{
+    private readonly ISpecializationsRepository _specializationsRepository;
+    private readonly IMapper _mapper;
+
+    public UpdateSpecializationCommandHandler(ISpecializationsRepository specializationsRepository, IMapper mapper)
+    {
+        _specializationsRepository = specializationsRepository;
+        _mapper = mapper;
+    }
+
+    public async Task<OneOf<Success, NotFound>> Handle(UpdateSpecializationCommand request, CancellationToken cancellationToken)
+    {
+        var specializationEntity = await _specializationsRepository.GetByIdAsync(request.Id);
+
+        if (specializationEntity is null)
+        {
+            return new NotFound();
+        }
+
+        _mapper.Map(request.EditedSpecialization, specializationEntity);
+
+        await _specializationsRepository.UpdateAsync(specializationEntity);
+
+        return new Success();
+    }
+}
