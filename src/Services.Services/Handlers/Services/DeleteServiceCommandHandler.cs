@@ -1,18 +1,22 @@
 ﻿using MediatR;
 using OneOf;
 using OneOf.Types;
+using Services.Contracts.MQMessages;
 using Services.Domain.Interfaces;
 using Services.Services.Abstractions.Commands.Services;
+using Services.Services.Abstractions.Contracts;
 
 namespace Services.Services.Handlers.Services;
 
 public class DeleteServiceCommandHandler : IRequestHandler<DeleteServiceCommand, OneOf<Success, NotFound>>
 {
     private readonly IServicesRepository _servicesRepository;
+    private readonly IMessageProducer _messageProducer;
 
-    public DeleteServiceCommandHandler(IServicesRepository servicesRepository)
+    public DeleteServiceCommandHandler(IServicesRepository servicesRepository, IMessageProducer messageProducer)
     {
         _servicesRepository = servicesRepository;
+        _messageProducer = messageProducer;
     }
 
     public async Task<OneOf<Success, NotFound>> Handle(DeleteServiceCommand request, CancellationToken cancellationToken)
@@ -25,6 +29,11 @@ public class DeleteServiceCommandHandler : IRequestHandler<DeleteServiceCommand,
         }
 
         await _servicesRepository.DeleteAsync(serviceEntity);
+
+        _messageProducer.SendServiceDeletedMessage(new ServiceDeletedMessage()
+        {
+            ServiceId = serviceEntity.Id
+        });
 
         return new Success();
     }

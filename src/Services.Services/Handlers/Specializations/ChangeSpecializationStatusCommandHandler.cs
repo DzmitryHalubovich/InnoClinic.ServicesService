@@ -5,6 +5,8 @@ using Services.Services.Abstractions.Commands.Specializations;
 using AutoMapper;
 using Services.Domain.Interfaces;
 using Services.Domain.Entities;
+using Services.Services.Abstractions.Contracts;
+using Services.Contracts.MQMessages;
 
 namespace Services.Services.Handlers.Specializations;
 
@@ -12,11 +14,14 @@ public class ChangeSpecializationStatusCommandHandler : IRequestHandler<ChangeSp
 {
     private readonly ISpecializationsRepository _specializationsRepository;
     private readonly IMapper _mapper;
+    private readonly IMessageProducer _messageProducer;
 
-    public ChangeSpecializationStatusCommandHandler(ISpecializationsRepository specializationsRepository, IMapper mapper)
+    public ChangeSpecializationStatusCommandHandler(ISpecializationsRepository specializationsRepository, IMapper mapper,
+        IMessageProducer messageProducer)
     {
         _specializationsRepository = specializationsRepository;
         _mapper = mapper;
+        _messageProducer = messageProducer;
     }
 
     public async Task<OneOf<Success, NotFound>> Handle(ChangeSpecializationStatusCommand request, CancellationToken cancellationToken)
@@ -42,6 +47,12 @@ public class ChangeSpecializationStatusCommandHandler : IRequestHandler<ChangeSp
         }
 
         await _specializationsRepository.UpdateStatusAsync(specializationEntity, statusIsChangedToInactive);
+
+        _messageProducer.SendSpecializationStatusChangedMessage(new SpecializationStatusChangedMessage
+        {
+            Id = specializationEntity.Id,
+            Status = (int) specializationEntity.Status
+        });
 
         return new Success();
     }

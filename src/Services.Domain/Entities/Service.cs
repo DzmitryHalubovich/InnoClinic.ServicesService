@@ -5,7 +5,7 @@ namespace Services.Domain.Entities;
 
 public class Service
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     [Required]
     [MaxLength(150)]

@@ -33,7 +33,7 @@ public class ServicesController : ControllerBase
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetServiceById([FromRoute] Guid id, 
+    public async Task<IActionResult> GetServiceById([FromRoute] int id, 
         CancellationToken cancellationToken = default)
     {
         var getServiceByIdResult = await _mediator.Send(new GetServiceByIdQuery(id), 
@@ -63,7 +63,7 @@ public class ServicesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> UpdateService([FromRoute]Guid id, [FromBody] ServiceUpdateDTO editedService, 
+    public async Task<IActionResult> UpdateService([FromRoute]int id, [FromBody] ServiceUpdateDTO editedService, 
         CancellationToken cancellationToken = default)
     {
         var updateServiceResult = await _mediator.Send(new UpdateServiceCommand(id, editedService), 
@@ -76,10 +76,21 @@ public class ServicesController : ControllerBase
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteService([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteService([FromRoute] int id, CancellationToken cancellationToken)
     {
         var deleteServiceResult = await _mediator.Send(new DeleteServiceCommand(id), cancellationToken);
 
         return deleteServiceResult.Match<IActionResult>(success => NoContent(), notFound => NotFound());
+    }
+
+    [HttpPatch("{id}")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ChangeStatus([FromRoute] int id,[FromBody] int status)
+    {
+        var changeStatusResult = await _mediator.Send(new ChangeStatusServiceCommand(id, status));
+
+        return changeStatusResult.Match<IActionResult>(success => NoContent(), notFound => NotFound());
     }
 }

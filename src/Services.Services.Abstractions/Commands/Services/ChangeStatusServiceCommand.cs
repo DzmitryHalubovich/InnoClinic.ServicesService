@@ -4,5 +4,5 @@ using OneOf.Types;
 
 namespace Services.Services.Abstractions.Commands.Services;
 
-public record DeleteServiceCommand(int Id) : IRequest<OneOf<Success, NotFound>>
+public record ChangeStatusServiceCommand(int Id, int Status) : IRequest<OneOf<Success, NotFound>>
 { }

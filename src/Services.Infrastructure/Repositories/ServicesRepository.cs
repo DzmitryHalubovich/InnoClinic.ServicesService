@@ -17,7 +17,7 @@ public class ServicesRepository : IServicesRepository
             .Include(x => x.ServiceCategory)
             .ToListAsync();
 
-    public async Task<Service?> GetByIdAsync(Guid id) =>
+    public async Task<Service?> GetByIdAsync(int id) =>
         await _context.Services.AsNoTracking()
             .Include(x => x.ServiceCategory)
             .FirstOrDefaultAsync(x => x.Id.Equals(id));

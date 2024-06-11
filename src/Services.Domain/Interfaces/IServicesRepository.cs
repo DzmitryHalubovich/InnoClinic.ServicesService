@@ -6,7 +6,7 @@ public interface IServicesRepository
 {
     public Task<List<Service>> GetAllAsync();
 
-    public Task<Service?> GetByIdAsync(Guid id);
+    public Task<Service?> GetByIdAsync(int id);
 
     public Task CreateAsync(Service service);
 
