@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Services.Domain.Entities;
+using Services.Infrastructure.Configuration;
 
 namespace Services.Infrastructure.Data;
 
@@ -12,10 +13,7 @@ public class ServicesDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<ServiceCategory>().HasData(
-            new ServiceCategory() { Id = 1, Name = "Analyses", TimeSlotSize = TimeSpan.FromMinutes(20) },
-            new ServiceCategory() { Id = 2, Name = "Consultation", TimeSlotSize = TimeSpan.FromMinutes(30) },
-            new ServiceCategory() { Id = 3, Name = "Diagnostics", TimeSlotSize = TimeSpan.FromMinutes(60) });
+        modelBuilder.ApplyConfiguration(new ServiceCategoryConfiguration());
     }
 
     public DbSet<Service> Services { get; set; }

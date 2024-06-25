@@ -9,7 +9,7 @@ builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseExceptionHandler(opt => { });
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

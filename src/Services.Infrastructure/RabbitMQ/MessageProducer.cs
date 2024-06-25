@@ -6,7 +6,7 @@ using Services.Services.Abstractions.Contracts;
 using Services.Services.Abstractions.RabbitMQ;
 using System.Text;
 
-namespace Services.Presentation.MessageProducer;
+namespace Services.Infrastructure.RabbitMQ;
 
 public class MessageProducer : IMessageProducer
 { 
@@ -78,14 +78,14 @@ public class MessageProducer : IMessageProducer
                           exchange: exchangeName,
                           routingKey: queueName);
 
-        var json = JsonConvert.SerializeObject(message);
+        var jsonMessage = JsonConvert.SerializeObject(message);
 
-        var body = Encoding.UTF8.GetBytes(json);
+        var messageBodyBytes = Encoding.UTF8.GetBytes(jsonMessage);
 
         channel.BasicPublish(exchange: exchangeName,
                              routingKey: queueName,
                              basicProperties: null,
-                             body: body);
+                             body: messageBodyBytes);
     }
 
     public void SendServiceStatusChangedToInactiveMessage(ServiceStatusChangedToInactiveMessage message)
@@ -101,13 +101,13 @@ public class MessageProducer : IMessageProducer
                          exchange: exchangeName,
                          routingKey: queueName);
 
-        var json = JsonConvert.SerializeObject(message);
+        var jsonMessage = JsonConvert.SerializeObject(message);
 
-        var body = Encoding.UTF8.GetBytes(json);
+        var messageBodyBytes = Encoding.UTF8.GetBytes(jsonMessage);
 
         channel.BasicPublish(exchange: exchangeName,
                              routingKey: queueName,
                              basicProperties: null,
-                             body: body);
+                             body: messageBodyBytes);
     }
 }

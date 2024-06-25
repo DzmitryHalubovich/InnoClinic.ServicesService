@@ -11,7 +11,8 @@ public class MapperProfile : Profile
 
         CreateMap<Specialization, SpecializationResponseDTO>();
 
-        CreateMap<SpecializationUpdateDTO, Specialization>();
+        CreateMap<SpecializationUpdateDTO, Specialization>()
+            .ForMember(dest => dest.Services, opt => opt.Ignore());
 
         CreateMap<ServiceCreateDTO, Service>();
 

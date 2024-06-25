@@ -5,7 +5,8 @@ using Services.Services.Abstractions.Commands.Specializations;
 using AutoMapper;
 using Services.Domain.Interfaces;
 using Services.Services.Abstractions.Contracts;
-using Services.Contracts.MQMessages;
+using InnoClinic.SharedModels.MQMessages.Specializations;
+using Services.Domain.Entities;
 
 namespace Services.Services.Handlers.Specializations;
 
@@ -32,13 +33,33 @@ public class UpdateSpecializationCommandHandler : IRequestHandler<UpdateSpeciali
             return new NotFound();
         }
 
+        if (request.EditedSpecialization.Status.Equals((int)Status.Inactive))
+        {
+            var services = specializationEntity.Services;
+
+            foreach (var service in services)
+            {
+                service.Status = Status.Inactive;
+            }
+        }
+
         _mapper.Map(request.EditedSpecialization, specializationEntity);
+
+        if (request.EditedSpecialization.Services != null && request.EditedSpecialization.Services.Any())
+        {
+            foreach (var service in request.EditedSpecialization.Services)
+            {
+                var newSerivce = _mapper.Map(service, new Service());
+
+                specializationEntity.Services.Add(newSerivce);
+            }
+        }
 
         await _specializationsRepository.UpdateAsync(specializationEntity);
 
         _messageProducer.SendSpecializationUpdatedMessage(new SpecializationUpdatedMessage
         {
-            Id = specializationEntity.Id,
+            SpecializationId = specializationEntity.Id,
             Name = specializationEntity.Name,
             Status = (int) specializationEntity.Status
         });

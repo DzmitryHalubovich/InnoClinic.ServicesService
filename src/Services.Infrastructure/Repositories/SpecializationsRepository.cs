@@ -3,8 +3,6 @@ using Services.Contracts.Filtering;
 using Services.Domain.Entities;
 using Services.Domain.Interfaces;
 using Services.Infrastructure.Data;
-using System.Data;
-using System.Threading;
 
 namespace Services.Infrastructure.Repositories;
 
@@ -61,9 +59,9 @@ public class SpecializationsRepository : ISpecializationsRepository
             foreach (var service in specialization.Services)
             {
                 service.Status = Status.Inactive;
-
-                _context.Entry(service).State = EntityState.Modified;
             }
+
+            _context.Services.UpdateRange(specialization.Services);
         }
 
         _context.Specializations.Update(specialization);

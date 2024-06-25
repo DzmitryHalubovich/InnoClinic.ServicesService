@@ -3,14 +3,13 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Domain.Interfaces;
 using Services.Infrastructure.Data;
+using Services.Infrastructure.RabbitMQ;
 using Services.Infrastructure.Repositories;
-using Services.Presentation.MessageProducer;
 using Services.Presentation.Validators;
 using Services.Services.Abstractions.Commands.Services;
 using Services.Services.Abstractions.Commands.Specializations;
 using Services.Services.Abstractions.Contracts;
 using Services.Services.Abstractions.RabbitMQ;
-using Services.Services.RabbitMQ;
 
 namespace Services.API.Extentions;
 
@@ -18,7 +17,7 @@ public static class ServiceExtensions
 {
     public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<IRabbitMqConnection>(new RabbitMqConnection());
+        services.AddSingleton<IRabbitMqConnection>(new RabbitMqConnection(configuration));
         services.AddScoped<IMessageProducer, MessageProducer>();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
             typeof(Services.Abstractions.Queries.Services.GetAllServicesQuery).Assembly,

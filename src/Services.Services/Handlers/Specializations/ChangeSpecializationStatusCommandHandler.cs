@@ -6,7 +6,7 @@ using AutoMapper;
 using Services.Domain.Interfaces;
 using Services.Domain.Entities;
 using Services.Services.Abstractions.Contracts;
-using Services.Contracts.MQMessages;
+using InnoClinic.SharedModels.MQMessages.Specializations;
 
 namespace Services.Services.Handlers.Specializations;
 
@@ -50,7 +50,7 @@ public class ChangeSpecializationStatusCommandHandler : IRequestHandler<ChangeSp
 
         _messageProducer.SendSpecializationStatusChangedMessage(new SpecializationStatusChangedMessage
         {
-            Id = specializationEntity.Id,
+            SpecializationId = specializationEntity.Id,
             Status = (int) specializationEntity.Status
         });
 

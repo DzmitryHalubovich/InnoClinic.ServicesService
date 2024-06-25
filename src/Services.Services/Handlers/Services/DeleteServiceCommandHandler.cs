@@ -1,7 +1,7 @@
-﻿using MediatR;
+﻿using InnoClinic.SharedModels.MQMessages.Services;
+using MediatR;
 using OneOf;
 using OneOf.Types;
-using Services.Contracts.MQMessages;
 using Services.Domain.Interfaces;
 using Services.Services.Abstractions.Commands.Services;
 using Services.Services.Abstractions.Contracts;

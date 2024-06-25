@@ -1,16 +1,20 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client;
 using Services.Services.Abstractions.RabbitMQ;
 
-namespace Services.Services.RabbitMQ;
+namespace Services.Infrastructure.RabbitMQ;
 
 public class RabbitMqConnection : IRabbitMqConnection, IDisposable
 {
     private IConnection? _connection;
+    private IConfiguration _configuration;
 
     public IConnection Connection => _connection!;
 
-    public RabbitMqConnection()
+    public RabbitMqConnection(IConfiguration configuration)
     {
+        _configuration = configuration;
+
         InitializeConnection();
     }
 
@@ -18,7 +22,7 @@ public class RabbitMqConnection : IRabbitMqConnection, IDisposable
     {
         var factory = new ConnectionFactory
         {
-            HostName = "localhost"
+            HostName = _configuration.GetSection("RabbitMQ:HostName").Value
         };
 
         _connection = factory.CreateConnection();
