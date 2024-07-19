@@ -17,9 +17,9 @@ namespace Services.API.Extentions;
 
 public static class WebApplicationBuilderExtention
 {
-    public static void ConfigureServices(this WebApplicationBuilder builder, IConfiguration configuration)
+    public static void ConfigureServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<IRabbitMqConnection>(new RabbitMqConnection(configuration));
+        builder.Services.AddSingleton<IRabbitMqConnection>(new RabbitMqConnection(builder.Configuration));
 
         builder.Services.AddScoped<IValidator<CreateSpecializationCommand>, CreateSpecializationCommandValidator>();
         builder.Services.AddScoped<IValidator<UpdateSpecializationCommand>, UpdateSpecializationCommandValidator>();
