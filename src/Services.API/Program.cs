@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 ValidatorOptions.Global.LanguageManager.Enabled = false;
 
-builder.Services.ConfigureServices(builder.Configuration);
+builder.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -22,7 +22,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers()
+    .RequireAuthorization("ApiScope");
 
 app.Run();
 

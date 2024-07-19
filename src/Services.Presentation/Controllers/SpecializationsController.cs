@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Contracts.Filtering;
@@ -19,6 +20,7 @@ public class SpecializationsController : ControllerBase
         _mediator = mediator;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -30,6 +32,7 @@ public class SpecializationsController : ControllerBase
         return getSpecializationResponse.Match<IActionResult>(Ok, notFound => NotFound());
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}", Name = "GetSpecializationById")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -41,6 +44,7 @@ public class SpecializationsController : ControllerBase
         return getSpecializationResponse.Match<IActionResult>(Ok, notFound => NotFound());
     }
 
+    [Authorize(Roles = "Receptionist")]
     [HttpPost]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -52,6 +56,7 @@ public class SpecializationsController : ControllerBase
         return CreatedAtRoute("GetSpecializationById", new { id = specResponse.Id }, specResponse);
     }
 
+    [Authorize(Roles = "Receptionist")]
     [HttpPut("{id}")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -66,6 +71,7 @@ public class SpecializationsController : ControllerBase
         return updateSpecializationResult.Match<IActionResult>(success => NoContent(), notFound => NotFound());
     }
 
+    [Authorize(Roles = "Receptionist")]
     [HttpDelete("{id}")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -77,6 +83,7 @@ public class SpecializationsController : ControllerBase
         return specializationDeleteResult.Match<IActionResult>(success => NoContent(), notFound => NotFound());
     }
 
+    [Authorize(Roles = "Receptionist")]
     [HttpPatch("{id}")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
