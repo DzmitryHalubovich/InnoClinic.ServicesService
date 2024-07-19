@@ -61,7 +61,7 @@ public static class WebApplicationBuilderExtention
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         
         builder.Services.AddDbContext<ServicesDbContext>(opt =>
-           opt.UseSqlServer(configuration.GetConnectionString("SqlConnection")));
+           opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
