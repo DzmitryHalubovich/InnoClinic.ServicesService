@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 ValidatorOptions.Global.LanguageManager.Enabled = false;
 
-builder.ConfigureServices(builder.Configuration);
+builder.ConfigureServices();
 
 var app = builder.Build();
 
