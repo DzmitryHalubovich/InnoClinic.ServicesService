@@ -11,9 +11,9 @@ public class ServicesDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
         modelBuilder.ApplyConfiguration(new ServiceCategoryConfiguration());
+
+        base.OnModelCreating(modelBuilder);
     }
 
     public DbSet<Service> Services { get; set; }

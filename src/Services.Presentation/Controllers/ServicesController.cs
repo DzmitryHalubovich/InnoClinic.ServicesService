@@ -19,7 +19,6 @@ public class ServicesController : ControllerBase
         _mediator = mediator;
     }
 
-    [AllowAnonymous]
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -31,7 +30,6 @@ public class ServicesController : ControllerBase
         return getServicesResult.Match<IActionResult>(Ok, notFound => NotFound());
     }
 
-    [AllowAnonymous]
     [HttpGet("{id}", Name = "GetServiceById")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -45,7 +43,6 @@ public class ServicesController : ControllerBase
         return getServiceByIdResult.Match<IActionResult>(Ok, notFound => NotFound());
     }
 
-    [Authorize(Roles = "Receptionist")]
     [HttpPost]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -62,7 +59,6 @@ public class ServicesController : ControllerBase
             createdService), notFound => NotFound());
     }
 
-    [Authorize(Roles = "Receptionist")]
     [HttpPut("{id}")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -77,7 +73,6 @@ public class ServicesController : ControllerBase
         return updateServiceResult.Match<IActionResult>(success => NoContent(), notFound => NotFound());
     }
 
-    [Authorize(Roles = "Receptionist")]
     [HttpDelete("{id}")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -89,7 +84,6 @@ public class ServicesController : ControllerBase
         return deleteServiceResult.Match<IActionResult>(success => NoContent(), notFound => NotFound());
     }
 
-    [Authorize(Roles = "Receptionist")]
     [HttpPatch("{id}")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

@@ -19,11 +19,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
-app.MapControllers()
-    .RequireAuthorization("ApiScope");
+app.MapControllers();
+//.RequireAuthorization("ApiScope");
+  
+await app.MigrateDatabaseAsync();
 
 app.Run();
 

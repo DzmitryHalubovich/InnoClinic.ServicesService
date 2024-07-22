@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using Services.Domain.Interfaces;
 using Services.Infrastructure.Data;
 using Services.Infrastructure.RabbitMQ;
@@ -29,6 +30,12 @@ public static class WebApplicationBuilderExtention
         builder.Services.AddScoped<ISpecializationsRepository, SpecializationsRepository>();
         builder.Services.AddScoped<IServiceCategoryRepository, ServiceCategoryRepository>();
         builder.Services.AddScoped<IMessageProducer, MessageProducer>();
+
+        builder.Host.UseSerilog((ctx, lc) =>
+            lc.WriteTo.Console()
+            .ReadFrom.Configuration(ctx.Configuration));
+
+        builder.Logging.ClearProviders();
 
         builder.Services.AddAuthentication("Bearer")
             .AddJwtBearer("Bearer", options =>
