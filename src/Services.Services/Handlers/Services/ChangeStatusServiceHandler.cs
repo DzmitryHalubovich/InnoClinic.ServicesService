@@ -1,20 +1,20 @@
 ﻿using InnoClinic.SharedModels.MQMessages.Services;
+using MassTransit;
 using MediatR;
 using OneOf;
 using OneOf.Types;
 using Services.Domain.Entities;
 using Services.Domain.Interfaces;
 using Services.Services.Abstractions.Commands.Services;
-using Services.Services.Abstractions.Contracts;
 
 namespace Services.Services.Handlers.Services;
 
 public class ChangeStatusServiceHandler : IRequestHandler<ChangeStatusServiceCommand, OneOf<Success, NotFound>>
 {
     private readonly IServicesRepository _servicesRepository;
-    private readonly IMessageProducer _messageProducer;
+    private readonly IPublishEndpoint _messageProducer;
 
-    public ChangeStatusServiceHandler(IServicesRepository servicesRepository, IMessageProducer messageProducer)
+    public ChangeStatusServiceHandler(IServicesRepository servicesRepository, IPublishEndpoint messageProducer)
     {
         _servicesRepository = servicesRepository;
         _messageProducer = messageProducer;
@@ -35,7 +35,7 @@ public class ChangeStatusServiceHandler : IRequestHandler<ChangeStatusServiceCom
 
         if (serviceEntity.Status == Status.Inactive)
         {
-            _messageProducer.SendServiceStatusChangedToInactiveMessage(new ServiceStatusChangedToInactiveMessage()
+            await _messageProducer.Publish<ServiceStatusChangedToInactiveMessage>(new()
             {
                 ServiceId = serviceEntity.Id
             });

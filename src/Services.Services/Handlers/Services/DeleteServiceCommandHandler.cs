@@ -1,19 +1,20 @@
 ﻿using InnoClinic.SharedModels.MQMessages.Services;
+using MassTransit;
 using MediatR;
 using OneOf;
 using OneOf.Types;
 using Services.Domain.Interfaces;
 using Services.Services.Abstractions.Commands.Services;
-using Services.Services.Abstractions.Contracts;
 
 namespace Services.Services.Handlers.Services;
 
 public class DeleteServiceCommandHandler : IRequestHandler<DeleteServiceCommand, OneOf<Success, NotFound>>
 {
     private readonly IServicesRepository _servicesRepository;
-    private readonly IMessageProducer _messageProducer;
+    private readonly IPublishEndpoint _messageProducer;
 
-    public DeleteServiceCommandHandler(IServicesRepository servicesRepository, IMessageProducer messageProducer)
+    public DeleteServiceCommandHandler(IServicesRepository servicesRepository, 
+        IPublishEndpoint messageProducer)
     {
         _servicesRepository = servicesRepository;
         _messageProducer = messageProducer;
@@ -30,7 +31,7 @@ public class DeleteServiceCommandHandler : IRequestHandler<DeleteServiceCommand,
 
         await _servicesRepository.DeleteAsync(serviceEntity);
 
-        _messageProducer.SendServiceDeletedMessage(new ServiceDeletedMessage()
+        await _messageProducer.Publish(new ServiceDeletedMessage()
         {
             ServiceId = serviceEntity.Id
         });

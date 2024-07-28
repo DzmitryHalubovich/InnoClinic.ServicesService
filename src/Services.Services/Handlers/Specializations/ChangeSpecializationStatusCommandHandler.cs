@@ -5,8 +5,8 @@ using Services.Services.Abstractions.Commands.Specializations;
 using AutoMapper;
 using Services.Domain.Interfaces;
 using Services.Domain.Entities;
-using Services.Services.Abstractions.Contracts;
 using InnoClinic.SharedModels.MQMessages.Specializations;
+using MassTransit;
 
 namespace Services.Services.Handlers.Specializations;
 
@@ -14,10 +14,10 @@ public class ChangeSpecializationStatusCommandHandler : IRequestHandler<ChangeSp
 {
     private readonly ISpecializationsRepository _specializationsRepository;
     private readonly IMapper _mapper;
-    private readonly IMessageProducer _messageProducer;
+    private readonly IPublishEndpoint _messageProducer;
 
-    public ChangeSpecializationStatusCommandHandler(ISpecializationsRepository specializationsRepository, IMapper mapper,
-        IMessageProducer messageProducer)
+    public ChangeSpecializationStatusCommandHandler(ISpecializationsRepository specializationsRepository, IMapper mapper, 
+        IPublishEndpoint messageProducer)
     {
         _specializationsRepository = specializationsRepository;
         _mapper = mapper;
@@ -48,7 +48,7 @@ public class ChangeSpecializationStatusCommandHandler : IRequestHandler<ChangeSp
 
         await _specializationsRepository.UpdateStatusAsync(specializationEntity, statusIsChangedToInactive);
 
-        _messageProducer.SendSpecializationStatusChangedMessage(new SpecializationStatusChangedMessage
+        await _messageProducer.Publish<SpecializationStatusChangedMessage>(new()
         {
             SpecializationId = specializationEntity.Id,
             Status = (int) specializationEntity.Status

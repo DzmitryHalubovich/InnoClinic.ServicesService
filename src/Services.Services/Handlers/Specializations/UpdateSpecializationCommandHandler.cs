@@ -4,9 +4,9 @@ using OneOf;
 using Services.Services.Abstractions.Commands.Specializations;
 using AutoMapper;
 using Services.Domain.Interfaces;
-using Services.Services.Abstractions.Contracts;
 using InnoClinic.SharedModels.MQMessages.Specializations;
 using Services.Domain.Entities;
+using MassTransit;
 
 namespace Services.Services.Handlers.Specializations;
 
@@ -14,14 +14,13 @@ public class UpdateSpecializationCommandHandler : IRequestHandler<UpdateSpeciali
 {
     private readonly ISpecializationsRepository _specializationsRepository;
     private readonly IMapper _mapper;
-    private readonly IMessageProducer _messageProducer;
+    private readonly IPublishEndpoint _messagePublisher;
 
     public UpdateSpecializationCommandHandler(ISpecializationsRepository specializationsRepository, IMapper mapper,
-        IMessageProducer messageProducer)
+        IPublishEndpoint messagePublisher)
     {
         _specializationsRepository = specializationsRepository;
         _mapper = mapper;
-        _messageProducer = messageProducer;
     }
 
     public async Task<OneOf<Success, NotFound>> Handle(UpdateSpecializationCommand request, CancellationToken cancellationToken)
@@ -57,7 +56,7 @@ public class UpdateSpecializationCommandHandler : IRequestHandler<UpdateSpeciali
 
         await _specializationsRepository.UpdateAsync(specializationEntity);
 
-        _messageProducer.SendSpecializationUpdatedMessage(new SpecializationUpdatedMessage
+        await _messagePublisher.Publish<SpecializationUpdatedMessage>(new()
         {
             SpecializationId = specializationEntity.Id,
             Name = specializationEntity.Name,

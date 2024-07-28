@@ -1,18 +1,17 @@
 ﻿using FluentValidation;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Services.Domain.Interfaces;
+using Services.Infrastructure;
 using Services.Infrastructure.Data;
-using Services.Infrastructure.RabbitMQ;
 using Services.Infrastructure.Repositories;
 using Services.Presentation.Validators;
 using Services.Services.Abstractions.Commands.Services;
 using Services.Services.Abstractions.Commands.Specializations;
-using Services.Services.Abstractions.Contracts;
-using Services.Services.Abstractions.RabbitMQ;
 
 namespace Services.API.Extentions;
 
@@ -20,8 +19,6 @@ public static class WebApplicationBuilderExtention
 {
     public static void ConfigureServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<IRabbitMqConnection>(new RabbitMqConnection(builder.Configuration));
-
         builder.Services.AddScoped<IValidator<CreateSpecializationCommand>, CreateSpecializationCommandValidator>();
         builder.Services.AddScoped<IValidator<UpdateSpecializationCommand>, UpdateSpecializationCommandValidator>();
         builder.Services.AddScoped<IValidator<CreateServiceCommand>, CreateServiceCommandValidator>();
@@ -29,8 +26,9 @@ public static class WebApplicationBuilderExtention
         builder.Services.AddScoped<IServicesRepository, ServicesRepository>();
         builder.Services.AddScoped<ISpecializationsRepository, SpecializationsRepository>();
         builder.Services.AddScoped<IServiceCategoryRepository, ServiceCategoryRepository>();
-        builder.Services.AddScoped<IMessageProducer, MessageProducer>();
 
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        
         builder.Host.UseSerilog((ctx, lc) =>
             lc.WriteTo.Console()
             .ReadFrom.Configuration(ctx.Configuration));
@@ -57,7 +55,27 @@ public static class WebApplicationBuilderExtention
             });
         });
 
-        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        var MTRabbitMqOptions = builder.Configuration
+        .GetSection("MassTransitRabbitMq")
+        .Get<MassTransitRabbitMqConfiguration>();
+
+        builder.Services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(MTRabbitMqOptions.Host, "/", h =>
+                {
+                    h.Username(MTRabbitMqOptions.Username);
+                    h.Password(MTRabbitMqOptions.Password);
+                });
+
+                cfg.ConfigureEndpoints(context);
+
+                cfg.AutoDelete = true;
+            });
+        });
 
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
             typeof(Services.Abstractions.Queries.Services.GetAllServicesQuery).Assembly,

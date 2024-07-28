@@ -1,5 +1,7 @@
 using FluentValidation;
+using MassTransit;
 using Services.API.Extentions;
+using Services.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
